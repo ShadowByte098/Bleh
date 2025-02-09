@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Client Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body, html { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Create the map, centered roughly on the world
+    const map = L.map('map').setView([20, 0], 2);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Function to update markers
+    function updateMarkers() {
+      fetch('/clients')
+        .then(response => response.json())
+        .then(data => {
+          // Remove old markers (for simplicity, re-create all markers)
+          if (window.clientMarkers) {
+            window.clientMarkers.forEach(marker => map.removeLayer(marker));
+          }
+          window.clientMarkers = [];
+          data.clients.forEach(client => {
+            const marker = L.marker([client.lat, client.lng]).addTo(map);
+            marker.bindPopup(`<b>${client.name}</b><br>IP: ${client.ip}`);
+            window.clientMarkers.push(marker);
+          });
+        })
+        .catch(err => console.error("Error fetching clients:", err));
+    }
+
+    // Poll for updates every 5 seconds
+    setInterval(updateMarkers, 5000);
+    updateMarkers();
+  </script>
+</body>
+</html>
