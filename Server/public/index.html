@@ -5,44 +5,71 @@
   <title>Client Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body, html { margin: 0; padding: 0; }
-    #map { height: 100vh; width: 100%; }
+    /* Remove default margin/padding and make the map full-screen */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
   </style>
 </head>
 <body>
   <div id="map"></div>
+
+  <!-- Load Leaflet JS from CDN -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Create the map, centered roughly on the world
-    const map = L.map('map').setView([20, 0], 2);
+    // Create a map centered around a default location (e.g., San Francisco)
+    const map = L.map('map').setView([37.7749, -122.4194], 5);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Function to update markers
-    function updateMarkers() {
+    // This array will hold the markers so we can clear them on updates.
+    let markers = [];
+
+    // Function to fetch registered clients and update the map
+    function fetchClients() {
       fetch('/clients')
         .then(response => response.json())
         .then(data => {
-          // Remove old markers (for simplicity, re-create all markers)
-          if (window.clientMarkers) {
-            window.clientMarkers.forEach(marker => map.removeLayer(marker));
-          }
-          window.clientMarkers = [];
+          // Remove old markers from the map
+          markers.forEach(marker => {
+            map.removeLayer(marker);
+          });
+          markers = [];
+
+          // Add a new marker for each client
           data.clients.forEach(client => {
             const marker = L.marker([client.lat, client.lng]).addTo(map);
-            marker.bindPopup(`<b>${client.name}</b><br>IP: ${client.ip}`);
-            window.clientMarkers.push(marker);
+
+            // Create popup content with client info.
+            // We use the client.id (which is a timestamp) to show when registration happened.
+            const popupContent = `
+              <strong>${client.name}</strong><br/>
+              IP: ${client.ip}<br/>
+              Location: (${client.lat}, ${client.lng})<br/>
+              Registered at: ${new Date(client.id).toLocaleString()}
+            `;
+            marker.bindPopup(popupContent);
+            markers.push(marker);
           });
         })
-        .catch(err => console.error("Error fetching clients:", err));
+        .catch(error => {
+          console.error('Error fetching clients:', error);
+        });
     }
 
-    // Poll for updates every 5 seconds
-    setInterval(updateMarkers, 5000);
-    updateMarkers();
+    // Fetch clients immediately and then poll every 5 seconds
+    fetchClients();
+    setInterval(fetchClients, 5000);
   </script>
 </body>
 </html>
